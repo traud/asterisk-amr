@@ -1,0 +1,147 @@
+--- include/asterisk/format_cache.h	(Asterisk 13.4.0)
++++ include/asterisk/format_cache.h	(working copy)
+@@ -211,2 +211,12 @@
+ /*!
++ * \brief Built-in cached amr format.
++ */
++extern struct ast_format *ast_format_amr;
++
++/*!
++ * \brief Built-in cached amr format.
++ */
++extern struct ast_format *ast_format_amrwb;
++
++/*!
+  * \brief Built-in cached t140 format.
+--- include/asterisk/format_compatibility.h	(Asterisk 13.4.0)
++++ include/asterisk/format_compatibility.h	(working copy)
+@@ -73,2 +73,6 @@
+ #define AST_FORMAT_OPUS (1ULL << 34)
++/*! AMR audio (8kHz) */
++#define AST_FORMAT_AMR (1ULL << 35)
++/*! AMR-WB audio (16kHz) */
++#define AST_FORMAT_AMR_WB (1ULL << 36)
+ /*! Raw testing-law data (G.711) */
+--- main/codec_builtin.c	(Asterisk 13.4.0)
++++ main/codec_builtin.c	(working copy)
+@@ -711,2 +711,50 @@
+ 
++static int amr_samples(struct ast_frame *frame)
++{
++	return 160;
++}
++
++static int amr_length(unsigned int samples)
++{
++	ast_log(LOG_NOTICE, "untested; please report failure or success: %u\n", samples); return samples / 8;
++}
++
++static struct ast_codec amr = {
++	.name = "amr",
++	.description = "AMR",
++	.type = AST_MEDIA_TYPE_AUDIO,
++	.sample_rate = 8000,
++	.minimum_ms = 20,
++	.maximum_ms = 200,
++	.default_ms = 20,
++	.minimum_bytes = 0, /* no smooth */
++	.samples_count = amr_samples,
++	.get_length = amr_length,
++	.smooth = 0,
++};
++
++static int amrwb_samples(struct ast_frame *frame)
++{
++	return 320;
++}
++
++static int amrwb_length(unsigned int samples)
++{
++	ast_log(LOG_NOTICE, "untested; please report failure or success: %u\n", samples); return samples / 16;
++}
++
++static struct ast_codec amrwb = {
++	.name = "amrwb",
++	.description = "AMR-WB",
++	.type = AST_MEDIA_TYPE_AUDIO,
++	.sample_rate = 16000,
++	.minimum_ms = 20,
++	.maximum_ms = 200,
++	.default_ms = 20,
++	.minimum_bytes = 0, /* no smooth */
++	.samples_count = amrwb_samples,
++	.get_length = amrwb_length,
++	.smooth = 0,
++};
++
+ static struct ast_codec jpeg = {
+@@ -831,2 +879,4 @@
+ 	res |= CODEC_REGISTER_AND_CACHE(opus);
++	res |= CODEC_REGISTER_AND_CACHE(amr);
++	res |= CODEC_REGISTER_AND_CACHE_NAMED("amrwb", amrwb);
+ 	res |= CODEC_REGISTER_AND_CACHE(jpeg);
+--- main/format_cache.c	(Asterisk 13.4.0)
++++ main/format_cache.c	(working copy)
+@@ -220,2 +220,12 @@
+ /*!
++ * \brief Built-in cached amr format.
++ */
++struct ast_format *ast_format_amr;
++
++/*!
++ * \brief Built-in cached amrwb format.
++ */
++struct ast_format *ast_format_amrwb;
++
++/*!
+  * \brief Built-in cached t140 format.
+@@ -322,2 +332,4 @@
+ 	ao2_replace(ast_format_opus, NULL);
++	ao2_replace(ast_format_amr, NULL);
++	ao2_replace(ast_format_amrwb, NULL);
+ 	ao2_replace(ast_format_jpeg, NULL);
+@@ -406,2 +418,6 @@
+ 		ao2_replace(ast_format_opus, format);
++	} else if (!strcmp(name, "amr")) {
++		ao2_replace(ast_format_amr, format);
++	} else if (!strcmp(name, "amrwb")) {
++		ao2_replace(ast_format_amrwb, format);
+ 	} else if (!strcmp(name, "jpeg")) {
+--- main/format_compatibility.c	(Asterisk 13.4.0)
++++ main/format_compatibility.c	(working copy)
+@@ -80,2 +80,6 @@
+ 		return AST_FORMAT_OPUS;
++	} else if (ast_format_cmp(format, ast_format_amr) == AST_FORMAT_CMP_EQUAL) {
++		return AST_FORMAT_AMR;
++	} else if (ast_format_cmp(format, ast_format_amrwb) == AST_FORMAT_CMP_EQUAL) {
++		return AST_FORMAT_AMR_WB;
+ 	} else if (ast_format_cmp(format, ast_format_testlaw) == AST_FORMAT_CMP_EQUAL) {
+@@ -147,2 +151,6 @@
+ 		return AST_FORMAT_OPUS;
++	} else if (codec->id == ast_format_get_codec_id(ast_format_amr)) {
++		return AST_FORMAT_AMR;
++	} else if (codec->id == ast_format_get_codec_id(ast_format_amrwb)) {
++		return AST_FORMAT_AMR_WB;
+ 	} else if (codec->id == ast_format_get_codec_id(ast_format_testlaw)) {
+@@ -234,2 +242,8 @@
+ 		return ast_format_opus;
++	/*! AMR audio (8kHz) */
++	case AST_FORMAT_AMR:
++		return ast_format_amr;
++	/*! AMR-WB audio (16kHz) */
++	case AST_FORMAT_AMR_WB:
++		return ast_format_amrwb;
+ 	/*! Raw mu-law data (G.711) */
+--- main/rtp_engine.c	(Asterisk 13.4.0)
++++ main/rtp_engine.c	(working copy)
+@@ -2144,2 +2144,4 @@
+ 	set_next_mime_type(ast_format_vp8, 0,  "video", "VP8", 90000);
++	set_next_mime_type(ast_format_amr, 0,  "audio", "AMR", 8000);
++	set_next_mime_type(ast_format_amrwb, 0,  "audio", "AMR-WB", 16000);
+ 
+@@ -2188,2 +2190,4 @@
+ 	add_static_payload(107, ast_format_opus, 0);
++	add_static_payload(108, ast_format_amr, 0);
++	add_static_payload(109, ast_format_amrwb, 0);
+ 
+

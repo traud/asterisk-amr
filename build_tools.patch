@@ -1,0 +1,35 @@
+--- build_tools/menuselect-deps.in	(Asterisk 13.5.0)
++++ build_tools/menuselect-deps.in	(working copy)
+@@ -1,2 +1,5 @@
+ ALSA=@PBX_ALSA@
++AMR_NB=@PBX_AMR_NB@
++AMR_WB_DECODER=@PBX_AMR_WB_DECODER@
++AMR_WB_ENCODER=@PBX_AMR_WB_ENCODER@
+ BLUETOOTH=@PBX_BLUETOOTH@
+--- configure.ac	(Asterisk 13.4.0)
++++ configure.ac	(working copy)
+@@ -402,2 +402,5 @@
+ AST_EXT_LIB_SETUP([ALSA], [Advanced Linux Sound Architecture], [asound])
++AST_EXT_LIB_SETUP([AMR_NB], [AMR Audio Codec (Narrowband) Decoder/Encoder], [opencore-amrnb])
++AST_EXT_LIB_SETUP([AMR_WB_DECODER], [AMR-WB Audio Codec (Wideband) Decoder], [opencore-amrwb])
++AST_EXT_LIB_SETUP([AMR_WB_ENCODER], [AMR-WB Audio Codec (Wideband) Encoder], [vo-amrwbenc])
+ AST_EXT_LIB_SETUP([BFD], [Debug symbol decoding], [bfd])
+@@ -1285,2 +1288,6 @@
+ 
++AST_EXT_LIB_CHECK([AMR_NB], [opencore-amrnb], [Encoder_Interface_init], [opencore-amrnb/interf_enc.h])
++AST_EXT_LIB_CHECK([AMR_WB_DECODER], [opencore-amrwb], [D_IF_init], [opencore-amrwb/dec_if.h])
++AST_EXT_LIB_CHECK([AMR_WB_ENCODER], [vo-amrwbenc], [E_IF_init], [vo-amrwbenc/enc_if.h])
++
+ AST_EXT_LIB_CHECK([BFD], [bfd], [bfd_openr], [bfd.h])
+--- makeopts.in	(Asterisk 13.4.0)
++++ makeopts.in	(working copy)
+@@ -121,2 +121,9 @@
+ 
++AMR_NB_INCLUDE=@AMR_NB_INCLUDE@
++AMR_NB_LIB=@AMR_NB_LIB@
++AMR_WB_DECODER_INCLUDE=@AMR_WB_DECODER_INCLUDE@
++AMR_WB_DECODER_LIB=@AMR_WB_DECODER_LIB@
++AMR_WB_ENCODER_INCLUDE=@AMR_WB_ENCODER_INCLUDE@
++AMR_WB_ENCODER_LIB=@AMR_WB_ENCODER_LIB@
++
+ BFD_INCLUDE=@BFD_INCLUDE@

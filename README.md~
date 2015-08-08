@@ -53,11 +53,8 @@ Compile and install:
 You can test AMR-WB out of the box using
 
 A.  (Google Android) [CSipSimple](http://play.google.com/store/apps/details?id=com.csipsimple)
-
 B.  (Google Android) [CounterPath Bria](http://play.google.com/store/apps/details?id=com.bria.voip)
-
 C.  (Apple iOS) [CounterPath Bria](http://itunes.apple.com/app/bria-iphone-edition-voip-softphone/id373968636)
-
 D.  (Windows Phone 8) [Linphone](http://www.windowsphone.com/s?appId=99661466-8c5c-489b-a567-569c1f480d29)
 
 Currently, only Linphone works with AMR and AMR-WB for both ingress and egress calls. Bria uses the bandwidth-efficient mode on egress and does not re-negotiate to octet-aligned mode. Therefore, it drops to the next preferred audio-codec. Ingress is fine with Bria. Same for CSipSimple. Furthermore, CSipSimple is based on PJSIP which [had a bug](http://trac.pjsip.org/repos/changeset/5122). Therefore, ingress AMR-WB creates distorted audio until that patch makes it into CSipSimple (just a matter of time). These VoIP/SIP clients offer G.722 and Opus, which should be used for wide-band audio instead. G.722 transcoding is build into Asterisk already. Opus can be [added as transcoding module …](http://github.com/seanbright/asterisk-opus/)

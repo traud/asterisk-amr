@@ -1,0 +1,72 @@
+--- main/format.c	(Asterisk 13.5.0)
++++ main/format.c	(working copy)
+@@ -36,2 +36,3 @@
+ #include "asterisk/format.h"
++#include "asterisk/format_cache.h"
+ #include "asterisk/astobj2.h"
+@@ -134,10 +135,11 @@
+ 
+ int __ast_format_interface_register(const char *codec, const struct ast_format_interface *interface, struct ast_module *mod)
+ {
+ 	SCOPED_AO2WRLOCK(lock, interfaces);
+ 	struct format_interface *format_interface;
++	struct ast_format *cached;
+ 
+ 	if (!interface->format_clone || !interface->format_destroy) {
+ 		ast_log(LOG_ERROR, "Format interface for codec '%s' does not implement required callbacks\n", codec);
+ 		return -1;
+ 	}
+@@ -155,10 +157,15 @@
+ 		return -1;
+ 	}
+ 	format_interface->interface = interface;
+ 	strcpy(format_interface->codec, codec); /* Safe */
+ 
++	cached = ast_format_cache_get(codec);
++	if (cached) {
++		cached->interface = format_interface->interface;
++	}
++
+ 	/* Once registered a format interface cannot be unregistered. */
+ 	ast_module_shutdown_ref(mod);
+ 	ao2_link_flags(interfaces, format_interface, OBJ_NOLOCK);
+ 	ao2_ref(format_interface, -1);
+ 
+@@ -281,18 +288,10 @@
+ 
+ struct ast_format *ast_format_attribute_set(const struct ast_format *format, const char *name, const char *value)
+ {
+ 	const struct ast_format_interface *interface = format->interface;
+ 
+-	if (!interface) {
+-		struct format_interface *format_interface = ao2_find(interfaces, format->codec->name, OBJ_SEARCH_KEY);
+-		if (format_interface) {
+-			interface = format_interface->interface;
+-			ao2_ref(format_interface, -1);
+-		}
+-	}
+-
+ 	if (!interface || !interface->format_attribute_set) {
+ 		return ao2_bump((struct ast_format*)format);
+ 	}
+ 
+ 	return interface->format_attribute_set(format, name, value);
+@@ -300,18 +299,10 @@
+ 
+ struct ast_format *ast_format_parse_sdp_fmtp(const struct ast_format *format, const char *attributes)
+ {
+ 	const struct ast_format_interface *interface = format->interface;
+ 
+-	if (!interface) {
+-		struct format_interface *format_interface = ao2_find(interfaces, format->codec->name, OBJ_SEARCH_KEY);
+-		if (format_interface) {
+-			interface = format_interface->interface;
+-			ao2_ref(format_interface, -1);
+-		}
+-	}
+-
+ 	if (!interface || !interface->format_parse_sdp_fmtp) {
+ 		return ao2_bump((struct ast_format*)format);
+ 	}
+ 
+ 	return interface->format_parse_sdp_fmtp(format, attributes);
