@@ -7,7 +7,7 @@
 +extern struct ast_format *ast_format_amr;
 +
 +/*!
-+ * \brief Built-in cached amr format.
++ * \brief Built-in cached amrwb format.
 + */
 +extern struct ast_format *ast_format_amrwb;
 +
