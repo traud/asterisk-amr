@@ -212,95 +212,95 @@ static void amrtolin_destroy(struct ast_trans_pvt *pvt)
 }
 
 static struct ast_translator amrtolin = {
-        .name = "amrtolin",
-        .src_codec = {
-                .name = "amr",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 8000,
-        },
-        .dst_codec = {
-                .name = "slin",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 8000,
-        },
-        .format = "slin",
-        .newpvt = amrtolin_new,
-        .framein = amrtolin_framein,
-        .destroy = amrtolin_destroy,
-        .sample = amr_sample,
-        .desc_size = sizeof(struct amr_coder_pvt),
+	.name = "amrtolin",
+	.src_codec = {
+		.name = "amr",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 8000,
+	},
+	.dst_codec = {
+		.name = "slin",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 8000,
+	},
+	.format = "slin",
+	.newpvt = amrtolin_new,
+	.framein = amrtolin_framein,
+	.destroy = amrtolin_destroy,
+	.sample = amr_sample,
+	.desc_size = sizeof(struct amr_coder_pvt),
 	.buffer_samples = BUFFER_SAMPLES / 2,
 	/* actually: 50 * channels[6] * redundancy[5] * (mode7[31] + CRC[1] + FT[1] + CMR[1]) */
-        .buf_size = BUFFER_SAMPLES,
+	.buf_size = BUFFER_SAMPLES,
 };
 
 static struct ast_translator lintoamr = {
-        .name = "lintoamr",
-        .src_codec = {
-                .name = "slin",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 8000,
-        },
-        .dst_codec = {
-                .name = "amr",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 8000,
-        },
-        .format = "amr",
-        .newpvt = lintoamr_new,
-        .framein = lintoamr_framein,
-        .frameout = lintoamr_frameout,
-        .destroy = lintoamr_destroy,
-        .sample = slin8_sample,
-        .desc_size = sizeof(struct amr_coder_pvt),
+	.name = "lintoamr",
+	.src_codec = {
+		.name = "slin",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 8000,
+	},
+	.dst_codec = {
+		.name = "amr",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 8000,
+	},
+	.format = "amr",
+	.newpvt = lintoamr_new,
+	.framein = lintoamr_framein,
+	.frameout = lintoamr_frameout,
+	.destroy = lintoamr_destroy,
+	.sample = slin8_sample,
+	.desc_size = sizeof(struct amr_coder_pvt),
 	.buffer_samples = BUFFER_SAMPLES / 2,
-        .buf_size = BUFFER_SAMPLES,
+	.buf_size = BUFFER_SAMPLES,
 };
 
 static struct ast_translator amrtolin16 = {
-        .name = "amrtolin16",
-        .src_codec = {
-                .name = "amrwb",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 16000,
-        },
-        .dst_codec = {
-                .name = "slin",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 16000,
-        },
-        .format = "slin16",
-        .newpvt = amrtolin_new,
-        .framein = amrtolin_framein,
-        .destroy = amrtolin_destroy,
-        .sample = amrwb_sample,
-        .desc_size = sizeof(struct amr_coder_pvt),
+	.name = "amrtolin16",
+	.src_codec = {
+		.name = "amrwb",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 16000,
+	},
+	.dst_codec = {
+		.name = "slin",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 16000,
+	},
+	.format = "slin16",
+	.newpvt = amrtolin_new,
+	.framein = amrtolin_framein,
+	.destroy = amrtolin_destroy,
+	.sample = amrwb_sample,
+	.desc_size = sizeof(struct amr_coder_pvt),
 	.buffer_samples = BUFFER_SAMPLES,
 	/* actually: 50 * channels[6] * redundancy[5] * (mode8[60] + CRC[1] + FT[1] + CMR[1]) */
-        .buf_size = BUFFER_SAMPLES * 2,
+	.buf_size = BUFFER_SAMPLES * 2,
 };
 
 static struct ast_translator lin16toamr = {
-        .name = "lin16toamr",
-        .src_codec = {
-                .name = "slin",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 16000,
-        },
-        .dst_codec = {
-                .name = "amrwb",
-                .type = AST_MEDIA_TYPE_AUDIO,
-                .sample_rate = 16000,
-        },
-        .format = "amrwb",
-        .newpvt = lintoamr_new,
-        .framein = lintoamr_framein,
-        .frameout = lintoamr_frameout,
-        .destroy = lintoamr_destroy,
-        .sample = slin16_sample,
-        .desc_size = sizeof(struct amr_coder_pvt),
+	.name = "lin16toamr",
+	.src_codec = {
+		.name = "slin",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 16000,
+	},
+	.dst_codec = {
+		.name = "amrwb",
+		.type = AST_MEDIA_TYPE_AUDIO,
+		.sample_rate = 16000,
+	},
+	.format = "amrwb",
+	.newpvt = lintoamr_new,
+	.framein = lintoamr_framein,
+	.frameout = lintoamr_frameout,
+	.destroy = lintoamr_destroy,
+	.sample = slin16_sample,
+	.desc_size = sizeof(struct amr_coder_pvt),
 	.buffer_samples = BUFFER_SAMPLES,
-        .buf_size = BUFFER_SAMPLES * 2,
+	.buf_size = BUFFER_SAMPLES * 2,
 };
 
 static int unload_module(void)
