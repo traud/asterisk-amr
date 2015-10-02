@@ -1,6 +1,6 @@
 #include "asterisk.h"
 
-/* version 2.0, compatiblity overview as of July 2015 */
+/* version 3.0, compatiblity overview as of October 2015 */
 /* based on res/res_format_attr_silk.c */
 
 #include "math.h"
@@ -13,7 +13,7 @@
 
 /* Asterisk internal defaults; can differ from RFC defaults */ 
 static struct amr_attr default_amr_attr = {
-	.octet_align            =  1, /* aligned (RFC = 0)   */
+	.octet_align            =  0, /* bandwidth efficient */
 	.mode_set               =  0, /* all modes           */
 	.mode_change_period     =  0, /* not specified       */
 	.mode_change_capability =  0, /* not supported       */
@@ -57,26 +57,6 @@ static int amr_clone(const struct ast_format *src, struct ast_format *dst)
 	ast_format_set_attribute_data(dst, attr);
 
 	return 0;
-}
-
-static enum ast_format_cmp_res amr_cmp(const struct ast_format *format1, const struct ast_format *format2)
-{
-	struct amr_attr *attr1 = ast_format_get_attribute_data(format1);
-	struct amr_attr *attr2 = ast_format_get_attribute_data(format2);
-
-	if (!attr1) {
-		attr1 = &default_amr_attr;
-	}
-
-	if (!attr2) {
-		attr2 = &default_amr_attr;
-	}
-
-	if (attr1->octet_align != attr2->octet_align) {
-		return AST_FORMAT_CMP_NOT_EQUAL;
-	}
-
-	return AST_FORMAT_CMP_EQUAL;
 }
 
 static struct ast_format *amr_parse_sdp_fmtp(const struct ast_format *format, const char *attrib)
@@ -157,6 +137,9 @@ static struct ast_format *amr_parse_sdp_fmtp(const struct ast_format *format, co
 	if (tmp) {
 		if (sscanf(tmp, "crc=%30u", &val) == 1) {
 			attr->crc = val;
+			if (attr->crc) {
+				attr->octet_align = 1;
+			}
 		}
 	}
 
@@ -165,6 +148,9 @@ static struct ast_format *amr_parse_sdp_fmtp(const struct ast_format *format, co
 	if (tmp) {
 		if (sscanf(tmp, "robust-sorting=%30u", &val) == 1) {
 			attr->robust_sorting = val;
+			if (attr->robust_sorting) {
+				attr->octet_align = 1;
+			}
 		}
 	}
 
@@ -172,6 +158,7 @@ static struct ast_format *amr_parse_sdp_fmtp(const struct ast_format *format, co
 	tmp = strstr(attributes, "interleaving");
 	if (tmp) {
 		attr->interleaving = 1;
+		attr->octet_align = 1;
 	}
 
 	attr->max_red = -1;
@@ -365,14 +352,15 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
  * AMR and AMR-WB support 'octet-align=1' which does not stuff the
  * header bits over octet borders and which is readable in
  * Wireshark. This parameter is negotiated via SDP. Belledonne and
- * CounterPath do not offer AMR, only AMR-WB.
+ * CounterPath do not offer AMR, only AMR-WB. Android offers only AMR.
  * 
  * Nokia Symbian/S60: configurable via user-interface; default: off
  * Nokia Series 40: configurable via OMA Client Provisioning (OMA CP); default: off
- * Nokia Asha Software Platform: see Nokia Series 40
+ * Nokia Asha Software Platform: configurable via OMA CP; default: on
  * CounterPath Bria (iOS): no setting known; off
  * CounterPath Bria (Android): see iOS
  * CounterPath Bria (BlackBerry 10): AMR/AMR-WB not available, as of version 1.3.1
+ *    Bug: since version 3.4, fmtp is missing = negotiating octet-aligned mode fails
  * BeeHD (iOS): no setting known; on
  *    Bug: Nokia Symbian/S60 calls BeeHD, no audio in BeeHD; AMR-WB works
  * Belledonne Linphone 1.0.2 (Windows Phone 8): no setting known; on
@@ -381,7 +369,9 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
  *    Bug: CSipSimple calls a Nokia Symbian/S60, no audio in Nokia; AMR works
  *    Bug: AMR-WB ignores octet-align=1 in fmtp = distorted audio; AMR works
  *         fixed upstream with <https://trac.pjsip.org/repos/changeset/5122>
+ * Google Android 5: no setting known; off
  * Join (iOS): no setting known; on
+ *    Bug: AMR-WB ignores octet-align=0 in fmtp = distorted audio; AMR works
  * PortGo (iOS): no setting known; off (is able to change alignment through negotiation)
  */
 static struct ast_format *amr_getjoint(const struct ast_format *format1, const struct ast_format *format2)
@@ -460,7 +450,7 @@ static struct ast_format *amr_getjoint(const struct ast_format *format1, const s
 static struct ast_format_interface amr_interface = {
 	.format_destroy = amr_destroy,
 	.format_clone = amr_clone,
-	.format_cmp = amr_cmp,
+	.format_cmp = NULL,
 	.format_get_joint = amr_getjoint,
 	.format_attribute_set = NULL,
 	.format_parse_sdp_fmtp = amr_parse_sdp_fmtp,

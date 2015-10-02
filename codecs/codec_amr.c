@@ -102,6 +102,7 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 	const int forceSpeech = 0; /* ignored by underlying API anyway */
 	const int dtx = attr ? attr->vad : 0;
 	const int mode = attr ? attr->mode_current : 0;
+	const int aligned = attr ? attr->octet_align : 0;
 
 	/* We can't work on anything less than a frame in size */
 	if (pvt->samples < frame_size) {
@@ -120,9 +121,39 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 
 		if (status < 0) {
 			ast_log(LOG_ERROR, "Error encoding the AMR frame\n");
-		} else {
+		} else if (aligned) {
 			pvt->outbuf.uc[datalen] = (15 << 4); /* Change-Mode Request (CMR): no */
 			datalen += status + 1; /* add one byte, because we added the CMR byte */
+			samples += frame_size;
+		} else {
+			const int another = ((out[0] >> 7) & 0x01);
+			const int type    = ((out[0] >> 3) & 0x0f);
+			const int quality = ((out[0] >> 2) & 0x01);
+			unsigned int i;
+
+			/* to shift in place, clear bits beyond end and at start */
+			out[0] = 0;
+			out[status] = 0;
+			/* shift in place, 6 bits */
+			for (i = 0; i < status; i++) {
+				out[i] = ((out[i] << 6) | (out[i + 1] >> 2));
+			}
+			/* restore first two bytes: [ CMR |F| FT |Q] */
+			out[0] |= ((type << 7) | (quality << 6));
+			pvt->outbuf.uc[datalen] = ((15 << 4) | (another << 3) | (type >> 1)); /* CMR: no */
+
+			if (8000 == sample_rate) {
+				/* https://tools.ietf.org/html/rfc4867#section-3.6 */
+				const int octets[16] = { 14, 15, 16, 18, 20, 22, 27, 32, 7 };
+
+				status = octets[type];
+			} else if (16000 == sample_rate) {
+				/* 3GPP TS 26.201, Table A.1b, plus CMR (4 bits) and F (1 bit) / 8 */
+				const int octets[16] = { 18, 24, 33, 37, 41, 47, 51, 59, 61, 7 };
+
+				status = octets[type];
+			}
+			datalen += status;
 			samples += frame_size;
 		}
 		pvt->samples -= frame_size;
@@ -143,28 +174,51 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	const unsigned int frame_size = sample_rate / 50;
 
 	struct amr_attr *attr = ast_format_get_attribute_data(f->subclass.format);
+	const int aligned = attr ? attr->octet_align : 0;
 	const unsigned char mode_next = *(unsigned char*) f->data.ptr >> 4;
 	const int bfi = 0; /* ignored by underlying API anyway */
+	unsigned char temp[f->datalen];
+	unsigned char *in;
 
 	if (attr && mode_next < 15) {
 		attr->mode_current = mode_next;
 	}
-	if (apvt->frames == 0 && *(unsigned char*) (f->data.ptr + 1) & 0x80) {
+
+	/* 
+	 * Decoders expect the "MIME storage format" (RFC 4867 chapter 5) which is
+	 * octet aligned. On the other hand, the "RTP payload format" (chapter 4)
+	 * is prefixed with a change-mode request (CMR; 1 byte in octet-aligned
+	 * mode). Therefore, we do +1 to jump over the first byte.
+	 */
+
+	if (aligned) {
+		in = f->data.ptr + 1;
+	} else {
+		in = f->data.ptr;
+		const int another = ((in[0] >> 3) & 0x01);
+		const int type    = ((in[0] << 1 | in[1] >> 7) & 0x0f);
+		const int quality = ((in[1] >> 6) & 0x01);
+		unsigned int i;
+
+		/* shift in place, 2 bits */
+		for (i = 1; i < (f->datalen-1); i++) {
+			temp[i] = ((in[i] << 2) | (in[i + 1] >> 6));
+		}
+		temp[f->datalen-1] = in[f->datalen-1] << 2;
+		/* restore first byte: [F| FT |Q] */
+		temp[0] = ((another << 7) | (type << 3) | (quality << 2));
+		in = temp;
+	}
+
+	if ((apvt->frames == 0) && (in[0] & 0x80)) {
 		apvt->frames = 1;
 		ast_log(LOG_WARNING, "multiple frames per packet were not tested\n");
 	}
 
-	/* Decoders expect the "MIME storage format" (RFC 4867 chapter 5) which is
-	 * octet aligned. On the other hand, the "RTP payload format" (chapter 4)
-	 * is prefixed with a change-mode request (CMR; 1 byte in octet-aligned
-	 * mode). Therefore, we do +1 to jump over the first byte. Therefore, we 
-	 * do not support the bandwidth-efficient mode, yet.
-	 */
-
 	if (8000 == sample_rate) {
-		Decoder_Interface_Decode(apvt->state, f->data.ptr + 1, pvt->outbuf.i16 + pvt->datalen, bfi);
+		Decoder_Interface_Decode(apvt->state, in, pvt->outbuf.i16 + pvt->datalen, bfi);
 	} else if (16000 == sample_rate) {
-		D_IF_decode(apvt->state, f->data.ptr + 1, pvt->outbuf.i16 + pvt->datalen, bfi);
+		D_IF_decode(apvt->state, in, pvt->outbuf.i16 + pvt->datalen, bfi);
 	}
 
 	pvt->samples += frame_size;
