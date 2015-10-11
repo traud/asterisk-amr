@@ -60,7 +60,7 @@ C.  (Apple iOS) [CounterPath Bria](http://itunes.apple.com/app/bria-iphone-editi
 
 D.  (Windows Phone 8) [Linphone](http://www.windowsphone.com/s?appId=99661466-8c5c-489b-a567-569c1f480d29)
 
-On ingress, this module supports the octet-aligned mode and the bandwidth-efficient mode. Currently on egress, only the bandwidth-efficient mode is advertised when transcoding. However, if the originating party supports AMR, its mode is passed transparently. Because Linphone supports only the octet-aligned mode, but does not honor the line fmtp in SDP, the mode is not negotiated correctly and ingress calls create distorted audio in Linphone. This bug is reported to the Linphone team. However, these VoIP/SIP clients offer G.722 and Opus, which should be used for wide-band audio instead. G.722 transcoding is build into Asterisk already. Opus can be [added as transcoding module …](http://github.com/seanbright/asterisk-opus/)
+On ingress, this module supports the octet-aligned mode and the bandwidth-efficient mode. Currently on egress, only the bandwidth-efficient mode is advertised when transcoding. However, if the originating party supports AMR, its mode is passed transparently. Because Linphone supports only the octet-aligned mode, but does not honor the line fmtp in SDP, the mode is not negotiated correctly and ingress calls create distorted audio in Linphone. This bug is reported to the Linphone team. However, these VoIP/SIP clients offer G.722 and Opus, which should be used for wide-band audio instead. G.722 transcoding is build into Asterisk already. Opus can be [added as transcoding module…](http://github.com/seanbright/asterisk-opus/)
 
 Actually, this repository was created for Nokia Mobile Phones which support AMR (since the year 2006) and AMR-WB (since the year 2009) in VoIP/SIP, like:
 
@@ -69,9 +69,9 @@ Actually, this repository was created for Nokia Mobile Phones which support AMR 
 * [Nokia E75](http://www.gsmarena.com/nokia_e75-2688.php) (Symbian/S60), and [Nokia Belle](http://www.gsmarena.com/results.php3?sOSes=5&sOSversions=5400).
 
 ## What is missing
-This transcoding module is shoddy work. Therefore, please, double-check the source of `codec_amr.c` for any feature you need. For example IETF [RFC 4867](http://tools.ietf.org/html/rfc4867) offers CRCs, robust sorting and interleaving. If you need this, please, [add](http://help.github.com/articles/using-pull-requests/) that code or [report](http://help.github.com/articles/creating-an-issue/) the device/app which requires this. Several frames per payload are another issue: I simply do not have a testing device for this. The transcoding module works for me and contains everything I need. If you cannot code yourself, however, a feature is missing for you, please, [report](http://help.github.com/articles/creating-an-issue/) and send me at least a testing device.
+This transcoding module is shoddy work. Therefore, please, double-check the source of `codec_amr.c` for any feature you need. For example IETF [RFC 4867](http://tools.ietf.org/html/rfc4867) offers frame CRC, robust sorting and interleaving. If you need this, please, [add](http://help.github.com/articles/using-pull-requests/) that code or [report](http://help.github.com/articles/creating-an-issue/) the device/app which requires this. I simply do not have a testing device for this. Several AMR frames per payload (compound payload) are another issue, for example when FEC or a packetization time (`ptime`) longer than 20 ms are used. The transcoding module works for me and contains everything I need. If you cannot code yourself, however, a feature is missing for you, please, [report](http://help.github.com/articles/creating-an-issue/) and send me at least a testing device.
 
 ## Thanks goes to
-* the teams of the Android Open Source Project (AOSP), OpenCORE AMR, Debian Multimedia, and Ubuntu for providing the libraries.
-* the Asterisk team: Thanks to their efforts and architecture this AMR module was written in one working day.
+* teams of the Android Open Source Project (AOSP), OpenCORE AMR, Debian Multimedia, and Ubuntu for providing the libraries.
+* Asterisk team: Thanks to their efforts and architecture this AMR module was written in one working day.
 * [Sean Bright](http://github.com/seanbright/asterisk-opus/) provided the starting point with his Opus patch.
