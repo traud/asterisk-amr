@@ -6,7 +6,7 @@ This is an implementation of IETF [RFC 4867](http://tools.ietf.org/html/rfc4867)
 
 ## Installing the patch
 
-The patch was built on top of Asterisk 13.5.0. If you use a newer version and the patch fails, please, [report](http://help.github.com/articles/creating-an-issue/)!
+The patch was built on top of Asterisk 13.6.0. If you use a newer version and the patch fails, please, [report](http://help.github.com/articles/creating-an-issue/)!
 
     cd /usr/src/
     wget downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz

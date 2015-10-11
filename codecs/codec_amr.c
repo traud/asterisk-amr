@@ -17,6 +17,7 @@
 #include "asterisk/format.h"
 #include "asterisk/translate.h"
 #include "asterisk/module.h"
+#include "asterisk/linkedlists.h"
 
 #include "asterisk/amr.h"
 #include "asterisk/slin.h"
@@ -95,23 +96,21 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 	struct amr_coder_pvt *apvt = pvt->pvt;
 	const unsigned int sample_rate = pvt->t->src_codec.sample_rate;
 	const unsigned int frame_size = sample_rate / 50;
+	struct ast_frame *result = NULL;
+	struct ast_frame *last = NULL;
+	int samples = 0; /* output samples */
 
 	struct amr_attr *attr = ast_format_get_attribute_data(pvt->f.subclass.format);
-	int datalen = 0; /* output bytes */
-	int samples = 0; /* output samples */
-	const int forceSpeech = 0; /* ignored by underlying API anyway */
 	const int dtx = attr ? attr->vad : 0;
 	const int mode = attr ? attr->mode_current : 0;
 	const int aligned = attr ? attr->octet_align : 0;
 
-	/* We can't work on anything less than a frame in size */
-	if (pvt->samples < frame_size) {
-		return NULL;
-	}
 	while (pvt->samples >= frame_size) {
-		int status = -1; /* result value; either error or output bytes */
+		struct ast_frame *current;
+		const int forceSpeech = 0; /* ignored by underlying API anyway */
 		const short* speech = apvt->buf + samples;
-		unsigned char* out = pvt->outbuf.uc + datalen + 1;
+		unsigned char* out = pvt->outbuf.uc + 1;
+		int status = -1; /* result value; either error or output bytes */
 
 		if (8000 == sample_rate) {
 			status = Encoder_Interface_Encode(apvt->state, mode, speech, out, forceSpeech);
@@ -119,12 +118,16 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 			status = E_IF_encode(apvt->state, mode, speech, out, dtx);
 		}
 
+		samples += frame_size;
+		pvt->samples -= frame_size;
+
 		if (status < 0) {
 			ast_log(LOG_ERROR, "Error encoding the AMR frame\n");
+			current = NULL;
 		} else if (aligned) {
-			pvt->outbuf.uc[datalen] = (15 << 4); /* Change-Mode Request (CMR): no */
-			datalen += status + 1; /* add one byte, because we added the CMR byte */
-			samples += frame_size;
+			pvt->outbuf.uc[0] = (15 << 4); /* Change-Mode Request (CMR): no */
+			/* add one byte, because we added the CMR byte */
+			current = ast_trans_frameout(pvt, status + 1, samples);
 		} else {
 			const int another = ((out[0] >> 7) & 0x01);
 			const int type    = ((out[0] >> 3) & 0x0f);
@@ -140,7 +143,7 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 			}
 			/* restore first two bytes: [ CMR |F| FT |Q] */
 			out[0] |= ((type << 7) | (quality << 6));
-			pvt->outbuf.uc[datalen] = ((15 << 4) | (another << 3) | (type >> 1)); /* CMR: no */
+			pvt->outbuf.uc[0] = ((15 << 4) | (another << 3) | (type >> 1)); /* CMR: no */
 
 			if (8000 == sample_rate) {
 				/* https://tools.ietf.org/html/rfc4867#section-3.6 */
@@ -153,18 +156,26 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 
 				status = octets[type];
 			}
-			datalen += status;
-			samples += frame_size;
+
+			current = ast_trans_frameout(pvt, status, samples);
 		}
-		pvt->samples -= frame_size;
+
+		if (!current) {
+			continue;
+		} else if (last) {
+			AST_LIST_NEXT(last, frame_list) = current;
+		} else {
+			result = current;
+		}
+		last = current;
 	}
 
 	/* Move the data at the end of the buffer to the front */
-	if (pvt->samples) {
+	if (samples) {
 		memmove(apvt->buf, apvt->buf + samples, pvt->samples * 2);
 	}
 
-	return ast_trans_frameout(pvt, datalen, samples);
+	return result;
 }
 
 static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
