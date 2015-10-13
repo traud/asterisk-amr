@@ -47,7 +47,7 @@ Enable slin16 in menuselect for transcoding, for example via:
 
 Compile and install:
 
-    sudo make install
+    sudo make     install
 
 ## Testing
 You can test AMR-WB out of the box using
@@ -75,3 +75,4 @@ This transcoding module is shoddy work. Therefore, please, double-check the sour
 * teams of the Android Open Source Project (AOSP), OpenCORE AMR, Debian Multimedia, and Ubuntu for providing the libraries.
 * Asterisk team: Thanks to their efforts and architecture this AMR module was written in one working day.
 * [Sean Bright](http://github.com/seanbright/asterisk-opus/) provided the starting point with his Opus patch.
+* [Юрий Остапчук](http://code.google.com/p/fs-mod-opencore-amr/source/browse/mod_opencore_amr/mod_opencore_amr.c) provided an code example for the bandwidth-efficient mode.
