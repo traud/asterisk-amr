@@ -127,7 +127,7 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 		} else if (aligned) {
 			pvt->outbuf.uc[0] = (15 << 4); /* Change-Mode Request (CMR): no */
 			/* add one byte, because we added the CMR byte */
-			current = ast_trans_frameout(pvt, status + 1, samples);
+			current = ast_trans_frameout(pvt, status + 1, frame_size);
 		} else {
 			const int another = ((out[0] >> 7) & 0x01);
 			const int type    = ((out[0] >> 3) & 0x0f);
@@ -157,7 +157,7 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 				status = octets[type];
 			}
 
-			current = ast_trans_frameout(pvt, status, samples);
+			current = ast_trans_frameout(pvt, status, frame_size);
 		}
 
 		if (!current) {
