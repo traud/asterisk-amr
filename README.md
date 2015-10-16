@@ -12,7 +12,7 @@ The patch was built on top of Asterisk 13.6.0. If you use a newer version and th
     wget downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz
     tar zxf ./asterisk*
     cd ./asterisk*
-    apt-get --assume-yes install build-essential libssl-dev libncurses-dev libnewt-dev libxml2-dev libsqlite3-dev uuid-dev libjansson-dev libblocksruntime-dev
+    apt-get --assume-yes install build-essential autoconf libssl-dev libncurses-dev libnewt-dev libxml2-dev libsqlite3-dev uuid-dev libjansson-dev libblocksruntime-dev
 
 Install libraries:
 
@@ -25,7 +25,7 @@ Apply all patches:
     wget github.com/traud/asterisk-amr/archive/master.zip
     unzip -qq master.zip
     rm master.zip
-    cp --verbose ./asterisk-amr*/* ./
+    cp --verbose --recursive ./asterisk-amr*/* ./
     patch -p0 <./codec_amr.patch
     patch -p0 <./build_tools.patch
     patch -p0 <./capability_cached_format.patch
