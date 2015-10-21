@@ -4,6 +4,11 @@ To add a codec for SIP/SDP (m=, rtmap, and ftmp), you create a format module in 
 
 This is an implementation of IETF [RFC 4867](http://tools.ietf.org/html/rfc4867). Sometimes, AMR is called AMR Narrowband (AMR-NB). AMR Wideband (ITU-T Recommendation G.722.2) is sometimes abbreviated W-AMR ([GSA](http://www.gsacom.com/hdvoice/)). GSMA Mobile [HD Voice](https://www.youtube.com/playlist?&list=PLj1MyDu3jckpSciPQ1Max0W6HDSaY8-n4) is AMR-WB. Research papers comparing AMR and AMR-WB with other audio codecs: [InterSpeech 2010](http://research.nokia.com/files/public/%5B12%5D_Interspeech%202010_Voice%20Quality%20Evaluation%20of%20Recent%20Open%20Source%20Codecs.pdf), [ICASSP 2010](http://research.nokia.com/files/public/%5B11%5D_ICASSP2010_Voice%20Quality%20Evaluation%20of%20Various%20Codecs.pdf), [InterSpeech 2011](http://research.nokia.com/files/public/%5B16%5D_InterSpeech2011_Voice_Quality_Characterization_of_IETF_Opus_Codec.pdf). Further [examples…](http://www.voiceage.com/Audio-Samples-Listening-Room.html)
 
+This patch is for Asterisk 13. If you use an older version of Asterisk, and AMR without AMR-WB is sufficient in your case, please, have a look at those patches:
+
+* [Asterisk 11…](http://gist.github.com/airend/ad78f1ea0a3e6c13d230)
+* [Asterisk 1.8…](http://sourceforge.net/projects/asterisk-amr/files/)
+
 ## Installing the patch
 
 The patch was built on top of Asterisk 13.6.0. If you use a newer version and the patch fails, please, [report](http://help.github.com/articles/creating-an-issue/)!
