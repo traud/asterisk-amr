@@ -1,16 +1,11 @@
---- main/rtp_engine.c	(Asterisk 13.5.0)
+--- main/rtp_engine.c	(Asterisk 13.6.0)
 +++ main/rtp_engine.c	(working copy)
-@@ -666 +666,5 @@
--	new_type->format = ao2_bump(static_RTP_PT[payload].format);
-+	new_type->format = static_RTP_PT[payload].format;
-+	if (new_type->format) {
-+		new_type->format = ast_format_parse_sdp_fmtp(new_type->format, "");
-+	}
-+	new_type->format = ao2_bump(new_type->format);
-@@ -732 +736,5 @@
+@@ -730 +750 @@
+-			new_type->format = ao2_bump(ast_format_g726_aal2);
++			new_type->format = ast_format_g726_aal2;
+@@ -732 +752,4 @@
 -			new_type->format = ao2_bump(t->payload_type.format);
 +			new_type->format = t->payload_type.format;
-+			if (new_type->format) {
-+				new_type->format = ast_format_parse_sdp_fmtp(new_type->format, "");
-+			}
-+			new_type->format = ao2_bump(new_type->format);
++		}
++		if (new_type->format) {
++			new_type->format = ast_format_parse_sdp_fmtp(new_type->format, "");
