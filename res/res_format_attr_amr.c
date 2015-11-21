@@ -191,7 +191,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "octet-align=%d", attr->octet_align);
 		appended = appended + 1;
@@ -201,7 +201,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "mode-set=");
 		if (attr->mode_set & 0x01) {
@@ -282,7 +282,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "mode-change-capability=%d", attr->mode_change_capability);
 		appended = appended + 1;
@@ -291,7 +291,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "mode-change-period=%d", attr->mode_change_period);
 		appended = appended + 1;
@@ -300,7 +300,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "mode-change-neighbor=%d", attr->mode_change_neighbor);
 		appended = appended + 1;
@@ -309,7 +309,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "crc=%d", attr->crc);
 		appended = appended + 1;
@@ -318,7 +318,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "robust-sorting=%d", attr->robust_sorting);
 		appended = appended + 1;
@@ -327,7 +327,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "interleaving");
 		appended = appended + 1;
@@ -336,7 +336,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		if (0 == appended) {
 			ast_str_append(str, 0, "a=fmtp:%d ", payload);
 		} else {
-			ast_str_append(str, 0, "; ");
+			ast_str_append(str, 0, ";");
 		}
 		ast_str_append(str, 0, "max-red=%d", attr->max_red);
 		appended = appended + 1;
