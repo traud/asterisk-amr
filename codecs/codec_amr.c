@@ -9,21 +9,26 @@
 /* version 1.0 */
 /* based on codecs/codec_opus.c */
 
+#include "asterisk/codec.h"             /* for AST_MEDIA_TYPE_AUDIO */
+#include "asterisk/format.h"            /* for ast_format_get_attribute_data */
+#include "asterisk/frame.h"             /* for ast_frame, etc */
+#include "asterisk/linkedlists.h"       /* for AST_LIST_NEXT, etc */
+#include "asterisk/logger.h"            /* for ast_log, ast_debug, etc */
+#include "asterisk/module.h"
+#include "asterisk/translate.h"         /* for ast_trans_pvt, etc */
+
 #include <opencore-amrnb/interf_dec.h>
 #include <opencore-amrnb/interf_enc.h>
 #include <opencore-amrwb/dec_if.h>
 #include <vo-amrwbenc/enc_if.h>
 
-#include "asterisk/format.h"
-#include "asterisk/translate.h"
-#include "asterisk/module.h"
-#include "asterisk/linkedlists.h"
-
 #include "asterisk/amr.h"
+
+#define BUFFER_SAMPLES 16000 /* 1000 milliseconds */
+
+/* Sample frame data */
 #include "asterisk/slin.h"
 #include "ex_amr.h"
-
-#define	BUFFER_SAMPLES	16000 /* 1000 milliseconds */
 
 struct amr_coder_pvt {
 	void *state; /* May be encoder or decoder */

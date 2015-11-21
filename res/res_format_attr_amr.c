@@ -3,11 +3,16 @@
 /* version 3.0, compatiblity overview as of October 2015 */
 /* based on res/res_format_attr_silk.c */
 
-#include "math.h"
+#include <ctype.h>                      /* for tolower */
+#include <math.h>                       /* for log10, floor */
 
-#include "asterisk/format.h"
-#include "asterisk/format_cache.h"
 #include "asterisk/module.h"
+#include "asterisk/format.h"
+#include "asterisk/astobj2.h"           /* for ao2_bump */
+#include "asterisk/format_cache.h"      /* for ast_format_amr(wb) */
+#include "asterisk/logger.h"            /* for ast_debug, ast_log, etc */
+#include "asterisk/strings.h"           /* for ast_str_append */
+#include "asterisk/utils.h"             /* for MAX, ast_calloc, ast_free, etc */
 
 #include "asterisk/amr.h"
 
