@@ -49,7 +49,7 @@ static int lintoamr_new(struct ast_trans_pvt *pvt)
 	} else if (16000 == sample_rate) {
 		apvt->state = E_IF_init();
 	}
-	
+
 	if (NULL == apvt->state) {
 		ast_log(LOG_ERROR, "Error creating the AMR encoder for %d\n", sample_rate);
 		return -1;
@@ -71,7 +71,7 @@ static int amrtolin_new(struct ast_trans_pvt *pvt)
 	} else if (16000 == sample_rate) {
 		apvt->state = D_IF_init();
 	}
-	
+
 	if (NULL == apvt->state) {
 		ast_log(LOG_ERROR, "Error creating the AMR decoder for %d\n", sample_rate);
 		return -1;
@@ -113,8 +113,8 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 	while (pvt->samples >= frame_size) {
 		struct ast_frame *current;
 		const int forceSpeech = 0; /* ignored by underlying API anyway */
-		const short* speech = apvt->buf + samples;
-		unsigned char* out = pvt->outbuf.uc + 1;
+		const short *speech = apvt->buf + samples;
+		unsigned char *out = pvt->outbuf.uc + 1;
 		int status = -1; /* result value; either error or output bytes */
 
 		if (8000 == sample_rate) {
@@ -191,7 +191,7 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 
 	struct amr_attr *attr = ast_format_get_attribute_data(f->subclass.format);
 	const int aligned = attr ? attr->octet_align : 0;
-	const unsigned char mode_next = *(unsigned char*) f->data.ptr >> 4;
+	const unsigned char mode_next = *(unsigned char *) f->data.ptr >> 4;
 	const int bfi = 0; /* ignored by underlying API anyway */
 	unsigned char temp[f->datalen];
 	unsigned char *in;
@@ -217,10 +217,10 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 		unsigned int i;
 
 		/* shift in place, 2 bits */
-		for (i = 1; i < (f->datalen-1); i++) {
+		for (i = 1; i < (f->datalen - 1); i++) {
 			temp[i] = ((in[i] << 2) | (in[i + 1] >> 6));
 		}
-		temp[f->datalen-1] = in[f->datalen-1] << 2;
+		temp[f->datalen - 1] = in[f->datalen - 1] << 2;
 		/* restore first byte: [F| FT |Q] */
 		temp[0] = ((another << 7) | (type << 3) | (quality << 2));
 		in = temp;
@@ -393,12 +393,12 @@ static int load_module(void)
 	res |= ast_register_translator(&lintoamr);
 	res |= ast_register_translator(&amrtolin16);
 	res |= ast_register_translator(&lin16toamr);
-	
+
 	if (res) {
 		unload_module();
 		return AST_MODULE_LOAD_FAILURE;
 	}
-	
+
 	return AST_MODULE_LOAD_SUCCESS;
 }
 
