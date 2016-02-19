@@ -39,7 +39,7 @@ static void amr_destroy(struct ast_format *format)
 static int amr_clone(const struct ast_format *src, struct ast_format *dst)
 {
 	struct amr_attr *original = ast_format_get_attribute_data(src);
-	struct amr_attr *attr = ast_calloc(1, sizeof(*attr));
+	struct amr_attr *attr = ast_malloc(sizeof(*attr));
 
 	if (!attr) {
 		return -1;
