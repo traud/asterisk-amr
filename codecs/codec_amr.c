@@ -41,7 +41,7 @@ static int lintoamr_new(struct ast_trans_pvt *pvt)
 	struct amr_coder_pvt *apvt = pvt->pvt;
 	const unsigned int sample_rate = pvt->t->src_codec.sample_rate;
 
-	struct amr_attr *attr = pvt->f.subclass.format ? ast_format_get_attribute_data(pvt->f.subclass.format) : NULL;
+	struct amr_attr *attr = pvt->explicit_dst ? ast_format_get_attribute_data(pvt->explicit_dst) : NULL;
 	const int dtx = attr ? attr->vad : 0;
 
 	if (8000 == sample_rate) {
@@ -56,7 +56,7 @@ static int lintoamr_new(struct ast_trans_pvt *pvt)
 	}
 
 	apvt->frames = 0;
-	ast_debug(3, "Created encoder (%d -> AMR) %p\n", sample_rate, pvt->f.subclass.format);
+	ast_debug(3, "Created encoder (%d -> AMR) %p (Format %p)\n", sample_rate, apvt, pvt->explicit_dst);
 
 	return 0;
 }
@@ -78,7 +78,7 @@ static int amrtolin_new(struct ast_trans_pvt *pvt)
 	}
 
 	apvt->frames = 0;
-	ast_debug(3, "Created decoder (AMR -> %d) %p\n", sample_rate, pvt->f.subclass.format);
+	ast_debug(3, "Created decoder (AMR -> %d) %p\n", sample_rate, apvt);
 
 	return 0;
 }
@@ -259,7 +259,7 @@ static void lintoamr_destroy(struct ast_trans_pvt *pvt)
 	}
 	apvt->state = NULL;
 
-	ast_debug(3, "Destroyed encoder (%d -> AMR) %p\n", sample_rate, pvt->f.subclass.format);
+	ast_debug(3, "Destroyed encoder (%d -> AMR) %p\n", sample_rate, apvt);
 }
 
 static void amrtolin_destroy(struct ast_trans_pvt *pvt)
@@ -278,7 +278,7 @@ static void amrtolin_destroy(struct ast_trans_pvt *pvt)
 	}
 	apvt->state = NULL;
 
-	ast_debug(3, "Destroyed decoder (AMR -> %d) %p\n", sample_rate, pvt->f.subclass.format);
+	ast_debug(3, "Destroyed decoder (AMR -> %d) %p\n", sample_rate, apvt);
 }
 
 static struct ast_translator amrtolin = {

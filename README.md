@@ -11,7 +11,7 @@ This patch is for Asterisk 13. If you use an older version of Asterisk, and AMR 
 
 ## Installing the patch
 
-The patch was built on top of Asterisk 13.6.0. If you use a newer version and the patch fails, please, [report](http://help.github.com/articles/creating-an-issue/)!
+The patch was built on top of Asterisk 13.7.2. If you use a newer version and the patch fails, please, [report](http://help.github.com/articles/creating-an-issue/)!
 
     cd /usr/src/
     wget downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz
@@ -33,10 +33,6 @@ Apply all patches:
     cp --verbose --recursive ./asterisk-amr*/* ./
     patch -p0 <./codec_amr.patch
     patch -p0 <./build_tools.patch
-    patch -p0 <./capability_cached_format.patch
-    patch -p0 <./register_interface_with_cached.patch
-    patch -p0 <./rtp_fmtp_RFC_default.patch
-    patch -p0 <./translate_joint_format.patch
 
 Run the bootstrap script to re-generate configure:
 
