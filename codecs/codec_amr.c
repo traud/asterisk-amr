@@ -194,7 +194,7 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	const unsigned char mode_next = *(unsigned char *) f->data.ptr >> 4;
 	const int bfi = 0; /* ignored by underlying API anyway */
 	unsigned char temp[f->datalen];
-	unsigned char *in;
+	unsigned char *in = f->data.ptr;
 
 	if (attr && mode_next < 15) {
 		attr->mode_current = mode_next;
@@ -208,9 +208,8 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	 */
 
 	if (aligned) {
-		in = f->data.ptr + 1;
+		in++;
 	} else {
-		in = f->data.ptr;
 		const int another = ((in[0] >> 3) & 0x01);
 		const int type    = ((in[0] << 1 | in[1] >> 7) & 0x0f);
 		const int quality = ((in[1] >> 6) & 0x01);
