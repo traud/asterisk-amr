@@ -126,9 +126,11 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 		samples += frame_size;
 		pvt->samples -= frame_size;
 
-		if (status < 0) {
+		if (status <= 0) {
 			ast_log(LOG_ERROR, "Error encoding the AMR frame\n");
 			current = NULL;
+		} else if (((out[0] >> 3) & 0x0f) == 15) { /* NO_DATA (FT=15) */
+			current = NULL; /* in case of silence do DTX */
 		} else if (aligned) {
 			pvt->outbuf.uc[0] = (15 << 4); /* Change-Mode Request (CMR): no */
 			/* add one byte, because we added the CMR byte */
