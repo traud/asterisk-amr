@@ -194,7 +194,7 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	struct amr_attr *attr = ast_format_get_attribute_data(f->subclass.format);
 	const int aligned = attr ? attr->octet_align : 0;
 	const unsigned char mode_next = *(unsigned char *) f->data.ptr >> 4;
-	const int bfi = 0; /* ignored by underlying API anyway */
+	const int bad_frame = 0; /* ignored by underlying API anyway */
 	unsigned char temp[f->datalen];
 	unsigned char *in = f->data.ptr;
 
@@ -233,9 +233,9 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	}
 
 	if (8000 == sample_rate) {
-		Decoder_Interface_Decode(apvt->state, in, pvt->outbuf.i16 + pvt->datalen, bfi);
+		Decoder_Interface_Decode(apvt->state, in, pvt->outbuf.i16 + pvt->datalen, bad_frame);
 	} else if (16000 == sample_rate) {
-		D_IF_decode(apvt->state, in, pvt->outbuf.i16 + pvt->datalen, bfi);
+		D_IF_decode(apvt->state, in, pvt->outbuf.i16 + pvt->datalen, bad_frame);
 	}
 
 	pvt->samples += frame_size;
