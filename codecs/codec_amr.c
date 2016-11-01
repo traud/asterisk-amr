@@ -112,13 +112,13 @@ static struct ast_frame *lintoamr_frameout(struct ast_trans_pvt *pvt)
 
 	while (pvt->samples >= frame_size) {
 		struct ast_frame *current;
-		const int forceSpeech = 0; /* ignored by underlying API anyway */
+		const int force_speech = 0; /* ignored by underlying API anyway */
 		const short *speech = apvt->buf + samples;
 		unsigned char *out = pvt->outbuf.uc + 1;
 		int status = -1; /* result value; either error or output bytes */
 
 		if (8000 == sample_rate) {
-			status = Encoder_Interface_Encode(apvt->state, mode, speech, out, forceSpeech);
+			status = Encoder_Interface_Encode(apvt->state, mode, speech, out, force_speech);
 		} else if (16000 == sample_rate) {
 			status = E_IF_encode(apvt->state, mode, speech, out, dtx);
 		}
