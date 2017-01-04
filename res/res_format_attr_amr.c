@@ -32,7 +32,7 @@ static struct amr_attr default_amr_attr = {
 static void amr_destroy(struct ast_format *format)
 {
 	struct amr_attr *attr = ast_format_get_attribute_data(format);
-	
+
 	ast_free(attr);
 }
 
@@ -419,7 +419,7 @@ static struct ast_format *amr_getjoint(const struct ast_format *format1, const s
 		return NULL;
 	}
 	attr_res = ast_format_get_attribute_data(jointformat);
-	
+
 	if (0 == attr1->mode_set && 0 == attr2->mode_set) {
 		attr_res->mode_set = 0; /* both allowed all = 0 */
 	} else if (0 != attr1->mode_set && 0 == attr2->mode_set) {
@@ -441,7 +441,7 @@ static struct ast_format *amr_getjoint(const struct ast_format *format1, const s
 	attr_res->robust_sorting = MAX(attr1->robust_sorting, attr2->robust_sorting);
 	attr_res->interleaving = MAX(attr1->interleaving, attr2->interleaving);
 	attr_res->max_red = MAX(attr1->max_red, attr2->max_red);
-	
+
 	/* internal variables for transcoding module */
 	/* starting point; later, changes with a change-mode request (CMR) */
 	if (0 < attr_res->mode_set) {
