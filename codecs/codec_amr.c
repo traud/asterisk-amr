@@ -198,12 +198,11 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	unsigned char temp[f->datalen];
 	unsigned char *in = f->data.ptr;
 
-	if (attr && mode_next < 15) {
-		if((8000 == sample_rate && mode_next > 7) || (16000 == sample_rate && mode_next > 8)){
-			ast_log(LOG_WARNING, "Invalid CMR: %d (sample rate %d frame length %d)\n", mode_next, sample_rate, f->datalen);
-		} else {
+	if (attr) {
+		if (8000 == sample_rate && mode_next <= 7) {
 			attr->mode_current = mode_next;
-			ast_debug(3, "AMR CMR request to mode %d\n", attr->mode_current);
+		} else if (16000 == sample_rate && mode_next <= 8)
+			attr->mode_current = mode_next;
 		}
 	}
 
