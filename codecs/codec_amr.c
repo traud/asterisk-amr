@@ -201,7 +201,7 @@ static int amrtolin_framein(struct ast_trans_pvt *pvt, struct ast_frame *f)
 	if (attr) {
 		if (8000 == sample_rate && mode_next <= 7) {
 			attr->mode_current = mode_next;
-		} else if (16000 == sample_rate && mode_next <= 8)
+		} else if (16000 == sample_rate && mode_next <= 8) {
 			attr->mode_current = mode_next;
 		}
 	}
