@@ -1,6 +1,6 @@
 #include "asterisk.h"
 
-/* version 3.0, compatiblity overview as of October 2015 */
+/* version 4.0, compatiblity overview as of October 2015 */
 /* based on res/res_format_attr_silk.c */
 
 #include <ctype.h>                      /* for tolower */
@@ -160,10 +160,14 @@ static struct ast_format *amr_parse_sdp_fmtp(const struct ast_format *format, co
 	}
 
 	attr->interleaving = 0;
-	tmp = strstr(attributes, "interleaving");
+	tmp = strstr(attributes, "interleaving=");
 	if (tmp) {
-		attr->interleaving = 1;
-		attr->octet_align = 1;
+		if (sscanf(tmp, "interleaving=%30u", &val) == 1) {
+			attr->interleaving = val;
+			if (attr->interleaving) {
+				attr->octet_align = 1;
+			}
+		}
 	}
 
 	attr->max_red = -1;
@@ -329,7 +333,7 @@ static void amr_generate_sdp_fmtp(const struct ast_format *format, unsigned int 
 		} else {
 			ast_str_append(str, 0, ";");
 		}
-		ast_str_append(str, 0, "interleaving");
+		ast_str_append(str, 0, "interleaving=%d", attr->interleaving);
 		appended = appended + 1;
 	}
 	if (0 <= attr->max_red) {
