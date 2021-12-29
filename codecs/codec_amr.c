@@ -50,7 +50,7 @@ static int lintoamr_new(struct ast_trans_pvt *pvt)
 		apvt->state = E_IF_init();
 	}
 
-	if (NULL == apvt->state) {
+	if (!apvt->state) {
 		ast_log(LOG_ERROR, "Error creating the AMR encoder for %d\n", sample_rate);
 		return -1;
 	}
@@ -72,7 +72,7 @@ static int amrtolin_new(struct ast_trans_pvt *pvt)
 		apvt->state = D_IF_init();
 	}
 
-	if (NULL == apvt->state) {
+	if (!apvt->state) {
 		ast_log(LOG_ERROR, "Error creating the AMR decoder for %d\n", sample_rate);
 		return -1;
 	}
