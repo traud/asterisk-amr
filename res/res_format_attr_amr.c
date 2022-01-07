@@ -107,10 +107,12 @@ static struct ast_format *amr_parse_sdp_fmtp(const struct ast_format *format, co
 			for (val = 0; val < size; val = val + 1) {
 				if (0 <= v[val] && v[val] < size) {
 					attr->mode_set = (attr->mode_set | (1 << v[val]));
-					attr->mode_current = v[val];
 				}
 			}
 		}
+	}
+	if (0 < attr->mode_set) {
+		attr->mode_current = floor(log10(attr->mode_set) / log10(2));
 	}
 
 	attr->mode_change_capability = 0;
